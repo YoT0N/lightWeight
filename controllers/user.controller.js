@@ -1,8 +1,8 @@
-const User = require('../models/User');
+const userService = require('../services/user.service');
 
 exports.getAllUsers = async (req, res, next) => {
     try {
-        const users = await User.find();
+        const users = await userService.getAllUsers();
         res.json(users);
     } catch (error) {
         next(error);
@@ -11,7 +11,7 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.getUserById = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await userService.getUserById(req.params.id);
         if (!user) {
             return res.status(404).json({error: 'Користувач не знайдений'});
         }
@@ -23,9 +23,27 @@ exports.getUserById = async (req, res, next) => {
 
 exports.createUser = async (req, res, next) => {
     try {
-        const newUser = new User(req.body);
-        await newUser.save();
-        res.status(201).json(newUser);
+        // Перевіряємо чи є користувач адміністратором для встановлення ролі
+        if (
+            req.body.role === 'admin' &&
+            (!req.user || req.user.role !== 'admin')
+        ) {
+            return res
+                .status(403)
+                .json({
+                    error: 'Тільки адміністратор може створювати адміністраторів',
+                });
+        }
+
+        const newUser = await userService.createUser(req.body);
+
+        // Видаляємо пароль та токени з відповіді
+        const user = newUser.toObject();
+        delete user.password;
+        delete user.resetPasswordToken;
+        delete user.resetPasswordExpires;
+
+        res.status(201).json(user);
     } catch (error) {
         if (error.code === 11000) {
             error.message = 'Користувач з таким email вже існує';
@@ -36,10 +54,16 @@ exports.createUser = async (req, res, next) => {
 
 exports.updateUser = async (req, res, next) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        });
+        // Перевіряємо чи намагається не-адмін змінити роль
+        if (req.body.role && (!req.user || req.user.role !== 'admin')) {
+            return res
+                .status(403)
+                .json({
+                    error: 'Тільки адміністратор може змінювати ролі користувачів',
+                });
+        }
+
+        const user = await userService.updateUser(req.params.id, req.body);
         if (!user) {
             return res.status(404).json({error: 'Користувач не знайдений'});
         }
@@ -51,7 +75,7 @@ exports.updateUser = async (req, res, next) => {
 
 exports.deleteUser = async (req, res, next) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id);
+        const user = await userService.deleteUser(req.params.id);
         if (!user) {
             return res.status(404).json({error: 'Користувач не знайдений'});
         }
@@ -63,14 +87,7 @@ exports.deleteUser = async (req, res, next) => {
 
 exports.searchUsers = async (req, res, next) => {
     try {
-        const {name, minAge, maxAge} = req.query;
-        const query = {};
-
-        if (name) query.name = {$regex: name, $options: 'i'};
-        if (minAge) query.age = {...query.age, $gte: parseInt(minAge)};
-        if (maxAge) query.age = {...query.age, $lte: parseInt(maxAge)};
-
-        const users = await User.find(query);
+        const users = await userService.searchUsers(req.query);
         res.json(users);
     } catch (error) {
         next(error);

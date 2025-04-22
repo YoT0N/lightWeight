@@ -5,12 +5,27 @@ const options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Users API',
+            title: 'LightWeight API',
             version: '1.0.0',
-            description: 'API для роботи з користувачами',
+            description:
+                'API для роботи з користувачами, автентифікацією та авторизацією',
         },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+            },
+        },
+        security: [
+            {
+                bearerAuth: [],
+            },
+        ],
     },
-    apis: ['../routes/user.routes.js'],
+    apis: ['./routes/*.js'], // шляхи до файлів з маршрутами
 };
 
 const swaggerSpec = swaggerJsdoc(options);
