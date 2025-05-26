@@ -1,0 +1,136 @@
+<%- include('layout') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                    <h2 class="fw-bold">Реєстрація</h2>
+                    <p class="text-muted">Створіть новий обліковий запис</p>
+                </div>
+
+                <% if (error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <%= error %>
+                </div>
+                <% } %>
+
+                <form method="POST" action="/register">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-user me-1"></i>
+                            Ім'я
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="name"
+                            name="name"
+                            required
+                            placeholder="Введіть ваше ім'я"
+                        />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-1"></i>
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            required
+                            placeholder="example@email.com"
+                        />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="age" class="form-label">
+                            <i class="fas fa-calendar me-1"></i>
+                            Вік
+                        </label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="age"
+                            name="age"
+                            required
+                            min="1"
+                            max="120"
+                            placeholder="Введіть ваш вік"
+                        />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-1"></i>
+                            Пароль
+                        </label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="password"
+                            name="password"
+                            required
+                            minlength="6"
+                            placeholder="Мінімум 6 символів"
+                        />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">
+                            <i class="fas fa-lock me-1"></i>
+                            Підтвердіть пароль
+                        </label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            required
+                            placeholder="Повторіть пароль"
+                        />
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Зареєструватися
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4" />
+
+                <div class="text-center">
+                    <p class="mb-0">
+                        Вже маєте обліковий запис?
+                        <a href="/login" class="text-decoration-none">
+                            Увійдіть тут
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Перевірка співпадіння паролів
+    document
+        .getElementById('confirmPassword')
+        .addEventListener('input', function () {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Паролі не співпадають');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+</script>

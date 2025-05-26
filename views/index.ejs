@@ -1,0 +1,109 @@
+<%- include('layout') %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg">
+            <div class="card-body text-center p-5">
+                <div class="mb-4">
+                    <i class="fas fa-feather-alt fa-4x text-primary mb-3"></i>
+                    <h1 class="display-4 fw-bold text-primary">
+                        Ласкаво просимо до LightWeight
+                    </h1>
+                    <p class="lead text-muted">
+                        Сучасний веб-додаток для спілкування в реальному часі
+                    </p>
+                </div>
+
+                <% if (user) { %>
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Привіт, <strong><%= user.name %></strong>! Ви успішно
+                    увійшли в систему.
+                </div>
+
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <a href="/profile" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-user me-2"></i>
+                            Мій профіль
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="/chat" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-comments me-2"></i>
+                            Перейти до чату
+                        </a>
+                    </div>
+                </div>
+                <% } else { %>
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Щоб скористатися всіма можливостями, будь ласка, увійдіть
+                    або зареєструйтеся.
+                </div>
+
+                <div class="row g-3 mt-3">
+                    <div class="col-md-6">
+                        <a href="/login" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Увійти
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a
+                            href="/register"
+                            class="btn btn-outline-primary btn-lg w-100"
+                        >
+                            <i class="fas fa-user-plus me-2"></i>
+                            Зареєструватися
+                        </a>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Особливості додатку -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-rocket fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Швидкість</h5>
+                        <p class="card-text">
+                            Миттєве спілкування в реальному часі завдяки
+                            WebSocket технології
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i
+                            class="fas fa-shield-alt fa-3x text-success mb-3"
+                        ></i>
+                        <h5 class="card-title">Безпека</h5>
+                        <p class="card-text">
+                            Захищена автентифікація та авторизація з JWT
+                            токенами
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Спільнота</h5>
+                        <p class="card-text">
+                            Публічні та приватні чати для зручного спілкування
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
