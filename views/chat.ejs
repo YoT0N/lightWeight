@@ -1,136 +1,389 @@
-<%- include('layout') %>
+<!DOCTYPE html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Чат</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            .container {
+                display: flex;
+                gap: 20px;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
 
-<div class="row h-100">
-    <!-- Бічна панель з користувачами -->
-    <div class="col-md-3">
-        <div class="card shadow-lg h-100">
-            <div class="card-header">
-                <h6 class="mb-0">
-                    <i class="fas fa-users me-2"></i>
-                    Користувачі онлайн
-                    <span class="badge bg-success ms-2" id="onlineCount">0</span>
-                </h6>
-            </div>
-            <div class="card-body p-0">
-                <div id="usersList" class="list-group list-group-flush">
-                    <!-- Користувачі будуть додані динамічно -->
-                </div>
+            .chat-section {
+                flex: 2;
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            .sidebar {
+                flex: 1;
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                max-height: 500px;
+            }
+
+            .chat-header {
+                background: #007bff;
+                color: white;
+                padding: 15px;
+            }
+            .messages {
+                height: 300px;
+                overflow-y: auto;
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+            }
+            .message {
+                margin-bottom: 10px;
+                padding: 8px;
+                border-radius: 4px;
+            }
+            .message.own {
+                background: #e3f2fd;
+                margin-left: 20%;
+            }
+            .message.other {
+                background: #f5f5f5;
+                margin-right: 20%;
+            }
+            .message.private {
+                background: #fff3cd;
+                border-left: 3px solid #ffc107;
+            }
+            .message-sender {
+                font-weight: bold;
+                font-size: 0.9em;
+                margin-bottom: 3px;
+            }
+            .message-time {
+                font-size: 0.8em;
+                color: #666;
+            }
+
+            .input-section {
+                padding: 15px;
+            }
+            .message-form {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .message-input {
+                flex: 1;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            .send-btn {
+                padding: 10px 20px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .private-section {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid #eee;
+            }
+            .private-form {
+                display: flex;
+                gap: 10px;
+            }
+            .private-select {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .online-users h3 {
+                margin-top: 0;
+                color: #007bff;
+            }
+            .user-list {
+                list-style: none;
+                padding: 0;
+            }
+            .user-list li {
+                padding: 5px 0;
+                color: #28a745;
+            }
+            .user-list li:before {
+                content: '● ';
+            }
+
+            .btn {
+                padding: 8px 16px;
+                text-decoration: none;
+                border-radius: 4px;
+                background: #6c757d;
+                color: white;
+            }
+            .btn:hover {
+                opacity: 0.8;
+            }
+
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 10px;
+                border-radius: 4px;
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Чат - <%= username %></h1>
+            <div>
+                <a href="/profile" class="btn">Профіль</a>
+                <a href="/logout" class="btn">Вийти</a>
             </div>
         </div>
-    </div>
 
-    <!-- Головна область чату -->
-    <div class="col-md-9">
-        <div class="card shadow-lg h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-0">
-                        <i class="fas fa-comments me-2"></i>
-                        <span id="chatTitle">Загальний чат</span>
-                    </h6>
+        <div class="container">
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h3>Загальний чат</h3>
                 </div>
-                <div>
-                    <button class="btn btn-outline-primary btn-sm" id="publicChatBtn">
-                        <i class="fas fa-globe me-1"></i>
-                        Загальний
-                    </button>
-                    <div class="btn-group ms-2">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fas fa-cog"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" id="clearChatBtn">Очистити чат</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/profile">Профіль</a></li>
-                        </ul>
+
+                <div class="messages" id="messages">
+                    <% messages.forEach(message => { %>
+                    <div
+                        class="message <%= message.sender === username ? 'own' : 'other' %>"
+                    >
+                        <div class="message-sender"><%= message.sender %></div>
+                        <div><%= message.content %></div>
+                        <div class="message-time">
+                            <%= new Date(message.timestamp).toLocaleTimeString()
+                            %>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Область повідомлень -->
-            <div class="card-body d-flex flex-column p-0" style="height: 500px;">
-                <div id="messagesContainer" class="flex-grow-1 overflow-auto p-3">
-                    <div id="messagesList">
-                        <!-- Повідомлення будуть додані динамічно -->
-                    </div>
+                    <% }) %>
                 </div>
 
-                <!-- Форма для відправки повідомлень -->
-                <div class="p-3 border-top">
-                    <form id="messageForm" class="d-flex">
+                <div class="input-section">
+                    <form class="message-form" id="messageForm">
                         <input
                             type="text"
+                            class="message-input"
                             id="messageInput"
-                            class="form-control me-2"
                             placeholder="Введіть повідомлення..."
-                            maxlength="500"
                             required
-                        >
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i>
+                        />
+                        <button type="submit" class="send-btn">
+                            Відправити
                         </button>
                     </form>
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            <span id="typingIndicator"></span>
-                            <span class="float-end">
-                                Натисніть Enter для відправки
-                            </span>
-                        </small>
+
+                    <div class="private-section">
+                        <h4>Приватне повідомлення:</h4>
+                        <form class="private-form" id="privateForm">
+                            <select
+                                class="private-select"
+                                id="recipientSelect"
+                                required
+                            >
+                                <option value="">Виберіть користувача</option>
+                                <% users.forEach(user => { %> <% if
+                                (user.username !== username) { %>
+                                <option value="<%= user.username %>">
+                                    <%= user.username %>
+                                </option>
+                                <% } %> <% }) %>
+                            </select>
+                            <input
+                                type="text"
+                                class="message-input"
+                                id="privateInput"
+                                placeholder="Приватне повідомлення..."
+                                required
+                            />
+                            <button type="submit" class="send-btn">
+                                Відправити
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
+
+            <div class="sidebar">
+                <div class="online-users">
+                    <h3>Онлайн користувачі</h3>
+                    <ul class="user-list" id="onlineUsers"></ul>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<!-- Індикатор підключення -->
-<div id="connectionStatus" class="position-fixed bottom-0 end-0 m-3">
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-wifi me-2"></i>
-        Підключено до чату
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-</div>
+        <div class="notification" id="notification"></div>
 
-<style>
-.chat-message {
-    margin-bottom: 15px;
-}
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            const username = '<%= username %>';
+            const messagesDiv = document.getElementById('messages');
+            const messageForm = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+            const privateForm = document.getElementById('privateForm');
+            const privateInput = document.getElementById('privateInput');
+            const recipientSelect = document.getElementById('recipientSelect');
+            const onlineUsers = document.getElementById('onlineUsers');
+            const notification = document.getElementById('notification');
 
-.message-bubble {
-    max-width: 70%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    word-wrap: break-word;
-}
+            // Підключення до сервера
+            socket.emit('user-connected', username);
 
-.message-own {
-    margin-left: auto;
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-}
+            // Відправка загального повідомлення
+            messageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                if (message) {
+                    socket.emit('send-message', {
+                        sender: username,
+                        content: message,
+                    });
+                    messageInput.value = '';
+                }
+            });
 
-.message-other {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-}
+            // Відправка приватного повідомлення
+            privateForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = privateInput.value.trim();
+                const recipient = recipientSelect.value;
+                if (message && recipient) {
+                    socket.emit('send-private-message', {
+                        sender: username,
+                        recipient: recipient,
+                        content: message,
+                    });
+                    privateInput.value = '';
+                    recipientSelect.value = '';
+                }
+            });
 
-.message-private {
-    border-left: 4px solid #28a745;
-}
+            // Отримання загальних повідомлень
+            socket.on('receive-message', (data) => {
+                addMessage(data, data.sender === username ? 'own' : 'other');
+            });
 
-.message-system {
-    text-align: center;
-    font-style: italic;
-    color: #6c757d;
-}
+            // Отримання приватних повідомлень
+            socket.on('receive-private-message', (data) => {
+                addMessage({...data, isPrivate: true}, 'private');
+                showNotification(`Приватне повідомлення від ${data.sender}`);
+            });
 
-.user-item {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+            // Підтвердження відправки приватного повідомлення
+            socket.on('private-message-sent', (data) => {
+                addMessage(
+                    {
+                        ...data,
+                        sender: `Ви → ${data.recipient}`,
+                        isPrivate: true,
+                    },
+                    'private',
+                );
+            });
 
-.user-item:hover {
-    background-color: #f8f9fa;
-}
+            // Оновлення списку онлайн користувачів
+            socket.on('online-users', (users) => {
+                onlineUsers.innerHTML = '';
+                users.forEach((user) => {
+                    if (user !== username) {
+                        const li = document.createElement('li');
+                        li.textContent = user;
+                        onlineUsers.appendChild(li);
+
+                        // Оновлення списку для приватних повідомлень
+                        const option = document.createElement('option');
+                        option.value = user;
+                        option.textContent = user;
+
+                        // Перевірка, чи опція вже існує
+                        let exists = false;
+                        for (
+                            let i = 0;
+                            i < recipientSelect.options.length;
+                            i++
+                        ) {
+                            if (recipientSelect.options[i].value === user) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            recipientSelect.appendChild(option);
+                        }
+                    }
+                });
+            });
+
+            // Сповіщення про підключення/відключення
+            socket.on('user-joined', (user) => {
+                showNotification(`${user} приєднався до чату`);
+            });
+
+            socket.on('user-left', (user) => {
+                showNotification(`${user} покинув чат`);
+            });
+
+            function addMessage(data, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'message-sender';
+                senderDiv.textContent = data.sender;
+
+                const contentDiv = document.createElement('div');
+                contentDiv.textContent = data.content;
+
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = new Date(
+                    data.timestamp,
+                ).toLocaleTimeString();
+
+                messageDiv.appendChild(senderDiv);
+                messageDiv.appendChild(contentDiv);
+                messageDiv.appendChild(timeDiv);
+
+                if (data.isPrivate) {
+                    messageDiv.classList.add('private');
+                }
+
+                messagesDiv.appendChild(messageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+
+            function showNotification(text) {
+                notification.textContent = text;
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+        </script>
+    </body>
+</html>

@@ -1,74 +1,73 @@
-<%- include('layout') %>
-
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow-lg">
-            <div class="card-body p-5">
-                <div class="text-center mb-4">
-                    <i class="fas fa-sign-in-alt fa-3x text-primary mb-3"></i>
-                    <h2 class="fw-bold">Вхід</h2>
-                    <p class="text-muted">
-                        Увійдіть до свого облікового запису
-                    </p>
-                </div>
-
-                <% if (error) { %>
-                <div class="alert alert-danger" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    <%= error %>
-                </div>
-                <% } %>
-
-                <form method="POST" action="/login">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">
-                            <i class="fas fa-envelope me-1"></i>
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            class="form-control"
-                            id="email"
-                            name="email"
-                            required
-                            placeholder="example@email.com"
-                        />
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password" class="form-label">
-                            <i class="fas fa-lock me-1"></i>
-                            Пароль
-                        </label>
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="password"
-                            name="password"
-                            required
-                            placeholder="Введіть пароль"
-                        />
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-sign-in-alt me-2"></i>
-                            Увійти
-                        </button>
-                    </div>
-                </form>
-
-                <hr class="my-4" />
-
-                <div class="text-center">
-                    <p class="mb-0">
-                        Немає облікового запису?
-                        <a href="/register" class="text-decoration-none">
-                            Зареєструйтеся тут
-                        </a>
-                    </p>
-                </div>
+<!DOCTYPE html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Вхід</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 400px;
+                margin: 100px auto;
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            input {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            button {
+                width: 100%;
+                padding: 12px;
+                background: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #218838;
+            }
+            .error {
+                color: red;
+                margin-bottom: 15px;
+            }
+            .link {
+                text-align: center;
+                margin-top: 15px;
+            }
+            .link a {
+                color: #007bff;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Вхід</h2>
+        <% if (error) { %>
+        <div class="error"><%= error %></div>
+        <% } %>
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="username">Ім'я користувача:</label>
+                <input type="text" id="username" name="username" required />
             </div>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required />
+            </div>
+            <button type="submit">Увійти</button>
+        </form>
+        <div class="link">
+            <a href="/register">Немає акаунта? Зареєструватися</a>
         </div>
-    </div>
-</div>
+    </body>
+</html>
